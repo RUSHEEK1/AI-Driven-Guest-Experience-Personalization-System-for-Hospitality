@@ -79,10 +79,10 @@ def save_to_csv(df, filename="hotel_preferences.csv"):
     print(f"Dataset saved to {filename}")
 
 # Generate the dataset
-#df = generate_hotel_preferences()
+df = generate_hotel_preferences()
 
 # Save the dataset to a CSV file
-#save_to_csv(df, file.csv")
+save_to_csv(df, file.csv")
 
 
 
