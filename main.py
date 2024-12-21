@@ -1,10 +1,11 @@
 from openai import OpenAI
 import pandas as pd
 
+
 # Set up the OpenAI client for interacting with the Gemini model on OpenRouter
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key="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",  # Use your actual OpenRouter API key
+    api_key="API key",  # Use your actual OpenRouter API key
 )
 
 # Function to analyze sentiment for each review in the dataset
@@ -22,7 +23,7 @@ def analyze_sentiment(text_data):
     return completion.choices[0].message.content
 
 # Load your dataset (replace 'your_dataset.csv' with the actual dataset path)
-dataset = pd.read_csv(fr"C:\Users\rushe\OneDrive\Desktop\datasets\hotel_reviews.csv")
+dataset = pd.read_csv("dataset")
 
 # Print all column names to check if 'review_column' exists
 print(dataset.columns)
