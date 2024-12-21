@@ -82,7 +82,7 @@ def save_to_csv(df, filename="hotel_preferences.csv"):
 #df = generate_hotel_preferences()
 
 # Save the dataset to a CSV file
-#save_to_csv(df, fr"C:\Users\rushe\OneDrive\Desktop\datasets\hotel_reviews_updated.csv")
+#save_to_csv(df, file.csv")
 
 
 
