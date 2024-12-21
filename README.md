@@ -14,3 +14,6 @@ pip install -r requirements.txt
 The link for the datasets are:
 https://www.kaggle.com/datasets/somnathnaskar/hotel-booking-dataset?select=hotel_bookings.csv
 https://www.kaggle.com/code/deepaktiwari12345/hotel-review/input
+
+The complete dataset:
+https://drive.google.com/file/d/1tAb4-hPkVC0aLU4XcFXXRe7kHFkUh-oP/view?usp=drive_link
