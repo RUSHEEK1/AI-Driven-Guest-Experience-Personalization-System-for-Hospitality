@@ -15,21 +15,31 @@ def analyze_sentiment_and_analysis(text_data):
                 {
                     "role": "user",
                     "content": (
-                "You are a sentiment analysis expert. Your task is to evaluate customer feedback, classify the sentiment as Positive, Negative, or Neutral, "
-                "and provide a concise yet detailed analysis explaining the reasoning behind your classification.\n\n"
-                "Here are some examples for reference:\n\n"
-                "1. Feedback: 'The hotel staff were friendly, and the amenities were excellent.'\n"
-                "   Sentiment: Positive\n"
-                "   Analysis: The feedback emphasizes positive experiences with staff and amenities. The use of words like 'friendly' and 'excellent' indicates a strong positive sentiment.\n\n"
-                "2. Feedback: 'The room was dirty, and the air conditioning did not work.'\n"
-                "   Sentiment: Negative\n"
-                "   Analysis: The feedback points out specific issues such as an unclean room and malfunctioning air conditioning. These are critical problems for a hotel stay, leading to a negative sentiment.\n\n"
-                "3. Feedback: 'The stay was average. The room was clean, but the service was slow.'\n"
-                "   Sentiment: Neutral\n"
-                "   Analysis: The feedback highlights both positive (clean room) and negative (slow service) aspects, resulting in an overall neutral sentiment.\n\n"
-                "Now analyze the following feedback:\n"
-                f"Feedback: '{text_data}'\n"
-                "Provide the sentiment and a detailed analysis."
+
+                    "You are a sentiment analysis expert specializing in customer feedback evaluation. "
+                    "Your task is to analyze feedback, classify the sentiment as Positive, Negative, or Neutral, "
+                    "provide a concise yet detailed explanation for your classification, and recommend specific improvements where applicable. "
+                    "Your goal is to help improve customer satisfaction by identifying areas of concern and excellence.\n\n"
+
+                    "Examples:\n\n"
+
+                    "1. Feedback: 'The hotel staff were friendly, and the amenities were excellent.'\n"
+                    "   Sentiment: Positive\n"
+                    "   Analysis: The feedback highlights positive experiences with staff and amenities. "
+                    "   The use of words like 'friendly' and 'excellent' conveys a strong positive sentiment.\n"
+                    "   Improvement: No improvement needed. Maintain the current standards.\n\n"
+
+                    "2. Feedback: 'The room was dirty, and the air conditioning did not work.'\n"
+                    "   Sentiment: Negative\n"
+                    "   Analysis: The feedback identifies critical issues such as an unclean room and malfunctioning air conditioning. "
+                    "   These problems severely impact the guest's experience, leading to a negative sentiment.\n"
+                    "   Improvement: Focus on improving room cleanliness and ensuring all air conditioning units are functional.\n\n"
+
+
+                    "Now analyze the following feedback:\n"
+                    f"Feedback: '{text_data}'\n"
+                    "Provide the sentiment, a detailed analysis, and actionable suggestions for improvement."
+
             )
                 }
             ]
