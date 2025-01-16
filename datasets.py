@@ -46,7 +46,7 @@ def drop_columns_from_dataset(file_path, columns_to_drop, output_path):
 
 def generate_hotel_preferences(num_samples=20492):
     # Define possible values for each column
-    food_preferences = ["Vegetarian", "Vegan", "Non-Vegetarian", "Gluten-Free", "Keto", "Pescatarian"]
+    food_preferences = ["Cafe", "Buffet", "Bistro", "Wine Bar", "Food Truck", "Gastropub"]
     room_types_realistic = {
         "Deluxe": 5000,
         "Standard": 10000,
