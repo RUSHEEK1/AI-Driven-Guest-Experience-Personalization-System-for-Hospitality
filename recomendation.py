@@ -7,7 +7,7 @@ import random
 data = pd.read_csv(file.csv")  # Replace with the path to your dataset
 print(data.head())
 
-RESHAPE THE DATA:
+# RESHAPE THE DATA:
 
 reshaped_data = pd.melt(
     data,
@@ -19,7 +19,7 @@ reshaped_data = pd.melt(
 activities_data = reshaped_data.groupby('category')['activities'].unique().to_dict()
 
 
-#GENERATE USER DATA:
+# GENERATE USER DATA:
 
 def generate_user_data(data, num_users=100, num_days=30):
     user_data = []
@@ -62,7 +62,7 @@ user_data_df = generate_user_data(data, num_users=100, num_days=30)
 data = generate_user_data(data)
 data
 
-BUILD USER PROFILE:
+# BUILD USER PROFILE:
 
 def build_user_profiles(data, user_profiles=None):
     user_profiles = data.pivot_table(
@@ -90,7 +90,7 @@ def build_user_profiles(data, user_profiles=None):
 similarity_matrix, user_profiles = build_user_profiles(data)
 similarity_matrix
 
-GET SIMILAR USERS:
+# GET SIMILAR USERS:
 
 def get_similar_users(data, user_id, n=5, similarity_matrix=None):
     if similarity_matrix is None:
@@ -106,7 +106,7 @@ def get_similar_users(data, user_id, n=5, similarity_matrix=None):
 
     return similar_users
 
-RECOMENDATION:
+# RECOMENDATION:
 
 def get_recommendations(data, name, category=None, n=5):
     similar_users = get_similar_users(data, name)
