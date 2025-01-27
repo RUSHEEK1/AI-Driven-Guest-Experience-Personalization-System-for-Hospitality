@@ -8,8 +8,8 @@ from main import analyze_sentiment_and_analysis
 # SMTP server details
 smtp_server = "smtp.gmail.com"
 smtp_port = 587
-email_user = "rusheekgiri@gmail.com"  # Your email
-email_password = "xdeu bctu fcug laoi"  # Use an app password for security
+email_user = "email.com  # Your email
+email_password = "password"  # Use an app password for security
 
 def send_email_notification(to_email, subject, body):
     """
