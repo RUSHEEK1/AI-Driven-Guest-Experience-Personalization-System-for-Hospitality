@@ -1,14 +1,18 @@
+# %%
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from datetime import datetime, timedelta
 import random
 
-data = pd.read_csv(file.csv")  # Replace with the path to your dataset
-print(data.head())
 
-# RESHAPE THE DATA:
+# %%
 
+data = pd.read_csv(r"C:\Users\rushe\OneDrive\Desktop\datasets\hotel_reviews.csv")  # Replace with the path to your dataset
+# print(data.head())
+print(data.columns)
+
+# %%
 reshaped_data = pd.melt(
     data,
     id_vars=['Name', 'Rating', 'phone-number'],
@@ -19,26 +23,21 @@ reshaped_data = pd.melt(
 activities_data = reshaped_data.groupby('category')['activities'].unique().to_dict()
 
 
-# GENERATE USER DATA:
-
+# %%
 def generate_user_data(data, num_users=100, num_days=30):
     user_data = []
     start_date = datetime.now() - timedelta(days=num_days)
 
     # Slice the dataset to only include the first 'num_users' entries
     data_subset = data.head(num_users)
-
     # Get the required columns only once
     user_info = data_subset[['Name', 'email', 'Price', 'RoomType']].drop_duplicates()
-
     # Convert the user info to a dictionary for faster access without setting 'Name' as index
     user_dict = user_info.to_dict(orient='records')  # Creating a list of dictionaries
-
     for user_details in user_dict:
         name = user_details['Name']
         email = user_details['email']
         price = user_details['Price']
-
         # User preferences (1-5 rating)
         for category, activities in activities_data.items():
             for activity in activities:
@@ -51,19 +50,20 @@ def generate_user_data(data, num_users=100, num_days=30):
                         'rating': random.randint(1, 5),
                         'time_spent': random.randint(30, 180),  # minutes
                         'email': email,
-                        'price': price,
-                        
+                        'price': price,                       
                     })
-
     return pd.DataFrame(user_data)
 
 # Call the function with your dataset
 user_data_df = generate_user_data(data, num_users=100, num_days=30)
+
+
+
+# %%
 data = generate_user_data(data)
 data
 
-# BUILD USER PROFILE:
-
+# %%
 def build_user_profiles(data, user_profiles=None):
     user_profiles = data.pivot_table(
         index='name',
@@ -90,8 +90,8 @@ def build_user_profiles(data, user_profiles=None):
 similarity_matrix, user_profiles = build_user_profiles(data)
 similarity_matrix
 
-# GET SIMILAR USERS:
 
+# %%
 def get_similar_users(data, user_id, n=5, similarity_matrix=None):
     if similarity_matrix is None:
         similarity_matrix, user_profiles = build_user_profiles(data)
@@ -106,30 +106,124 @@ def get_similar_users(data, user_id, n=5, similarity_matrix=None):
 
     return similar_users
 
-# RECOMENDATION:
 
+# %%
 def get_recommendations(data, name, category=None, n=5):
+    """
+    Generate recommendations for a user based on their activity history.
+
+    Args:
+        data (pd.DataFrame): The input dataset containing user activities, ratings, etc.
+        name (str): The name of the user for whom recommendations are generated.
+        category (str, optional): Filter recommendations by category. Defaults to None.
+        n (int, optional): The number of recommendations to return. Defaults to 5.
+
+    Returns:
+        list: A list of recommended activity names.
+    """
     similar_users = get_similar_users(data, name)
 
+    # Filter data to include only similar users
     similar_users_data = data[data['name'].isin(similar_users)]
 
+    # If a category is provided, filter the data by category
     if category:
         similar_users_data = similar_users_data[
             similar_users_data['category'] == category
         ]
 
+    # Aggregate ratings and time_spent for each activity
     recommendations = similar_users_data.groupby('activity').agg({
         'rating': 'mean',
         'time_spent': 'mean'
     }).sort_values('rating', ascending=False)
 
-    user_activities = set(data[data['name'] ==name]['activity'])
+    # Get the activities the user has already participated in
+    user_activities = set(data[data['name'] == name]['activity'])
+
+    # Filter out activities the user has already done
     new_activities = recommendations[~recommendations.index.isin(user_activities)]
 
-    return new_activities.head(n)
+    # Return only the activity names as a list
+    return new_activities.head(n).index.tolist()
 
-new_activities = get_recommendations(data,"USER",category="WellnessActivity")
+
+# %%
+new_activities = get_recommendations(data,"Ernest Barnes",category="SportsActivity")
 new_activities
 
-new_activities = get_recommendations(data,"OTHER USER")
+# %%
+new_activities = get_recommendations(data,"Susan Wilson")
 new_activities
+
+# %%
+from slack_sdk.webhook import WebhookClient
+
+# Slack Webhook URL
+slack_webhook_url = "https://hooks.slack.com/services/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"
+
+# Function to send Slack notification
+def send_slack_notification(message):
+    webhook = WebhookClient(slack_webhook_url)
+    response = webhook.send(text=message)
+    if response.status_code == 200 and response.body == "ok":
+        print("Slack notification sent!")
+    else:
+        print("Failed to send Slack notification.")
+
+# Mock data (this will be provided by the user)
+data = {
+    'Name': ['John', 'Jane', 'Alex', 'Mike', 'Sophia'],
+    'Rating': [5, 4, 3, 4, 5],
+    'SportsActivity': ['Tennis', 'Basketball', 'Tennis', 'Football', 'Tennis'],
+    'FoodPreference': ['Vegan', 'Non-Vegan', 'Non-Vegan', 'Vegan', 'Vegan']
+}
+
+# Function to get recommendations (mock version)
+def get_recommendations(data, name, category=None, n=5):
+    try:
+        # Filtering the data based on user name
+        similar_users_data = [entry for entry in data if entry['Name'] == name]
+
+        # If category is provided, filter by category
+        if category:
+            similar_users_data = [entry for entry in similar_users_data if entry['SportsActivity'] == category]
+
+        # Mock recommendations (you can adjust as needed)
+        recommendations = sorted(similar_users_data, key=lambda x: x['Rating'], reverse=True)
+
+        return recommendations[:n]
+    except Exception as e:
+        print(f"Error in recommendations: {e}")
+        return []
+
+# Function to process review, name, and recommendations, then send Slack message
+def process_review_and_send_message(data, name, review, category=None):
+    try:
+        # Get recommendations based on the reviewer's name and category
+        recommendations = get_recommendations(data, name, category)
+        
+        # Format the Slack message
+        slack_message = (
+            f"Review: {review}\n\n"
+            f"User Name: {name}\n\n"
+            f"Recommendation (Top {len(recommendations)} activities):\n"
+            f"{' '.join([entry['SportsActivity'] for entry in recommendations])}"
+        )
+        
+        # Send the formatted message to Slack
+        send_slack_notification(slack_message)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+# Example usage (replace with your actual input and data)
+if __name__ == "__main__":
+    # Ask for user input
+    review_input = input("Please enter your review: ")
+    user_name = input("Please enter your name: ")
+    category_input = input("Please enter the category (e.g., 'Tennis', 'Football'): ")
+
+    # Process the review and send the Slack message
+    process_review_and_send_message(data, user_name, review_input, category=category_input)
+
+
