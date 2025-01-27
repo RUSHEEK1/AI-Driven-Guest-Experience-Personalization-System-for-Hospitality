@@ -1,21 +1,57 @@
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from slack_sdk.webhook import WebhookClient
 from recomendation1 import get_recommendations
 from main import analyze_sentiment_and_analysis
-import pandas as pd
-def send_slack_notification(message, slack_webhook_url):
+
+# SMTP server details
+smtp_server = "smtp.gmail.com"
+smtp_port = 587
+email_user = "rusheekgiri@gmail.com"  # Your email
+email_password = "xdeu bctu fcug laoi"  # Use an app password for security
+
+def send_email_notification(to_email, subject, body):
+    """
+    Sends an email notification with the given subject and body to the specified recipient email address.
+
+    Args:
+        to_email (str): Recipient email address.
+        subject (str): Email subject.
+        body (str): Email body text.
+
+    Returns:
+        None: Prints success or failure message.
+    """
+    try:
+        # Create an email message
+        msg = MIMEMultipart()
+        msg['From'] = email_user
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain'))  # Attach the plain-text body
+
+        # Connect to the SMTP server
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()  # Upgrade connection to a secure encrypted SSL/TLS connection
+            server.login(email_user, email_password)  # Login with your email credentials
+            server.send_message(msg)  # Send the email
+
+        print("Email sent successfully!")
+    except Exception as e:
+        print(f"Failed to send email notification: {e}")
+
+def send_slack_notification(slack_webhook_url, message):
     """
     Sends a Slack notification with the given message to the specified webhook URL.
 
     Args:
-        message (str): The message to send to Slack.
         slack_webhook_url (str): Slack Webhook URL for sending notifications.
-
-    Raises:
-        ValueError: If the Slack Webhook URL is not provided or invalid.
+        message (str): Message to send to Slack.
+        
+    Returns:
+        None: Prints success or failure message.
     """
-    if not slack_webhook_url or "hooks.slack.com" not in slack_webhook_url:
-        raise ValueError("Invalid or missing Slack Webhook URL.")
-
     try:
         webhook = WebhookClient(slack_webhook_url)
         response = webhook.send(text=message)
@@ -26,10 +62,9 @@ def send_slack_notification(message, slack_webhook_url):
     except Exception as e:
         print(f"Error sending Slack notification: {e}")
 
-
-def generate_slack_message(username, review, sentiment_analysis, recommendation=None):
+def generate_message(username, review, sentiment_analysis, recommendation=None):
     """
-    Constructs a Slack message with the provided details.
+    Constructs a message for either Slack or email.
 
     Args:
         username (str): Username of the reviewer.
@@ -38,7 +73,7 @@ def generate_slack_message(username, review, sentiment_analysis, recommendation=
         recommendation (str, optional): Recommendations generated for the user.
 
     Returns:
-        str: A formatted Slack message.
+        str: A formatted message.
     """
     sentiment, analysis = sentiment_analysis
     message = f"""
@@ -52,12 +87,35 @@ def generate_slack_message(username, review, sentiment_analysis, recommendation=
         message += f"\n    - *Recommendation:* {recommendation}"
     return message.strip()
 
+def get_recommendations_for_review(username, review):
+    """
+    Get recommendations based on the review and username.
+
+    Args:
+        username (str): Username of the reviewer.
+        review (str): Review text provided by the user.
+
+    Returns:
+        str: Recommendations for the user.
+    """
+    try:
+        recommendation_data = get_recommendations(username, review)
+        print(f"Raw recommendation data: {recommendation_data}")
+
+        if isinstance(recommendation_data, list):
+            return ", ".join(recommendation_data)  # Combine activities into a single string
+        else:
+            print("Error in recommendations: Expected a list but got something else.")
+            return "No recommendations available"
+    except Exception as e:
+        print(f"Error generating recommendations: {e}")
+        return "Error while generating recommendations."
+
 def main():
     """
     Main function to take input, perform sentiment analysis, generate recommendations,
-    and send a Slack notification.
+    and send Slack notification and email.
     """
-    # Replace with your actual Slack Webhook URL
     slack_webhook_url = "https://hooks.slack.com/services/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"
 
     try:
@@ -73,37 +131,22 @@ def main():
         sentiment_analysis = analyze_sentiment_and_analysis(review)
         
         # Generate recommendations
-        recommendation = None
-        try:
-            # Call get_recommendations
-            recommendation_data = get_recommendations( username, review)
+        recommendation = get_recommendations_for_review(username, review)
 
-            # Debugging: Print the recommendation data
-            print(f"Raw recommendation data: {recommendation_data}")
+        # Generate the message for both Slack and Email
+        message = generate_message(username, review, sentiment_analysis, recommendation)
 
-            # Ensure recommendation_data is a list
-            if isinstance(recommendation_data, list):
-                recommendation = ", ".join(recommendation_data)  # Combine activities into a single string
-            else:
-                print("Error in recommendations: Expected a list but got something else.")
-                recommendation = "No recommendations available"
+        # Send Slack notification
+        send_slack_notification(slack_webhook_url, message)
         
-        except Exception as e:
-            print(f"Error generating recommendations: {e}")
-            recommendation = "Error while generating recommendations."
-
-        # Generate the Slack message
-        slack_message = generate_slack_message(username, review, sentiment_analysis, recommendation)
-        
-        # Send the Slack notification
-        send_slack_notification(slack_message, slack_webhook_url)
+        # Send the same message via email
+        subject = "Review Notification"
+        send_email_notification("rusheek153@gmail.com", subject, message)
     
     except ValueError as ve:
         print(f"Configuration Error: {ve}")
     except Exception as e:
         print(f"Error in main workflow: {e}")
-
-
 
 if __name__ == "__main__":
     main()
