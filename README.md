@@ -53,15 +53,10 @@ The dataset includes the following columns:
 - Enhance automation for better CRM integration.
 
 ## Author
-**[Your Name]**
+**Rusheek G**
 
 ## License
 This project is licensed under the MIT License.
-
-## Acknowledgments
-- Infosys for providing mentorship and guidance.
-- OpenAI and Meta for AI models.
-- Google Sheets API for data management.
 
 ---
 Feel free to fork, contribute, and enhance the project!
